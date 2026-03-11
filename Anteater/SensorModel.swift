@@ -107,6 +107,7 @@ class SensorModel: BLEDelegate {
     }
     
     func ble(didConnectToPeripheral peripheral: CBPeripheral) {
+        bleManager.connectToPeripheral(peripheral)
         print("[DEBUG] didConnectToPeripheral called, connected to: \(peripheral.name ?? "unknown")")
 
         
