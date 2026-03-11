@@ -90,6 +90,14 @@ func ==(lhs: Hill, rhs: Hill) -> Bool {
 
 class SensorModel: BLEDelegate {
     var bleManager = BLE()
+    static let kBLE_SCAN_TIMEOUT = 10000.0
+    
+    static let shared = SensorModel()
+
+    var delegate: SensorModelDelegate?
+    var sensorReadings: [ReadingType: [Reading]] = [.Humidity: [], .Temperature: []]
+    var activeHill: Hill?
+    var peripheral: CBPeripheral
     
     func ble(didUpdateState state: BLEState) {
         print("[DEBUG] didUpdateState called with state: \(state)")
@@ -102,13 +110,14 @@ class SensorModel: BLEDelegate {
     func ble(didDiscoverPeripheral peripheral: CBPeripheral) {
         print("[DEBUG] didDiscoverPeripheral called, found: \(peripheral.name ?? "unknown")")
         bleManager.connectToPeripheral(peripheral)
-
         
     }
     
     func ble(didConnectToPeripheral peripheral: CBPeripheral) {
-        bleManager.connectToPeripheral(peripheral)
         print("[DEBUG] didConnectToPeripheral called, connected to: \(peripheral.name ?? "unknown")")
+        var activePeripheral = peripheral
+        self.activeHill = Hill(name: peripheral.name ?? "Unknown Hill")
+        delegate?.sensorModel(self, didChangeActiveHill: self.activeHill)
 
         
     }
@@ -124,16 +133,11 @@ class SensorModel: BLEDelegate {
     }
     
     
-    static let kBLE_SCAN_TIMEOUT = 10000.0
     
-    static let shared = SensorModel()
-
-    var delegate: SensorModelDelegate?
-    var sensorReadings: [ReadingType: [Reading]] = [.Humidity: [], .Temperature: []]
-    var activeHill: Hill?
     
     init() {
         bleManager.delegate = self
+        delegate?.sensorModel(<#T##model: SensorModel##SensorModel#>, didChangeActiveHill: <#T##Hill?#>)
         
         
     }
