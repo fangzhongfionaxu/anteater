@@ -97,7 +97,7 @@ class SensorModel: BLEDelegate {
     var delegate: SensorModelDelegate?
     var sensorReadings: [ReadingType: [Reading]] = [.Humidity: [], .Temperature: []]
     var activeHill: Hill?
-    var peripheral: CBPeripheral
+    var activePeripheral: CBPeripheral?
     
     func ble(didUpdateState state: BLEState) {
         print("[DEBUG] didUpdateState called with state: \(state)")
@@ -115,7 +115,7 @@ class SensorModel: BLEDelegate {
     
     func ble(didConnectToPeripheral peripheral: CBPeripheral) {
         print("[DEBUG] didConnectToPeripheral called, connected to: \(peripheral.name ?? "unknown")")
-        var activePeripheral = peripheral
+        self.activePeripheral = peripheral
         self.activeHill = Hill(name: peripheral.name ?? "Unknown Hill")
         delegate?.sensorModel(self, didChangeActiveHill: self.activeHill)
 
@@ -137,7 +137,6 @@ class SensorModel: BLEDelegate {
     
     init() {
         bleManager.delegate = self
-        delegate?.sensorModel(<#T##model: SensorModel##SensorModel#>, didChangeActiveHill: <#T##Hill?#>)
         
         
     }
