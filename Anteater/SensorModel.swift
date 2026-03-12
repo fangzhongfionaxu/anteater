@@ -124,6 +124,25 @@ class SensorModel: BLEDelegate {
     
     func ble(didDisconnectFromPeripheral peripheral: CBPeripheral) {
         print("[DEBUG] didDisconnectFromPeripheral called")
+        // Check if the disconnected peripheral is our active one
+        if peripheral == self.activePeripheral {
+            print("[DEBUG] Active peripheral disconnected, resetting activeHill")
+            
+            // Reset active hill to nil
+            self.activeHill = nil
+            
+            // Reset active peripheral to nil
+            self.activePeripheral = nil
+            
+            // Notify delegate that there's no active hill anymore (on main thread)
+            DispatchQueue.main.async {
+                self.delegate?.sensorModel(self, didChangeActiveHill: nil)
+            }
+            
+            // Start scanning again to look for new connections
+            bleManager.startScanning(timeout: SensorModel.kBLE_SCAN_TIMEOUT)
+            print("[DEBUG] Started scanning for new peripherals")
+        }
 
         
     }
