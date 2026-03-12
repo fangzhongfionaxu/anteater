@@ -129,6 +129,25 @@ class SensorModel: BLEDelegate {
     }
     
     func ble(_ peripheral: CBPeripheral, didReceiveData data: Data?) {
+        print("[DEBUG] didRecieveData called")
+        
+        // convert a non-nil Data optional into a String
+        let str = String(data: data!, encoding: String.Encoding.ascii)!
+        // get a substring that excludes the first and last characters
+        let substring = str[str.index(after: str.startIndex)..<str.index(before: str.endIndex)]
+        
+        // convert a Substring to a Double
+        let value = Double(substring)!
+        // now use them to build the Reading
+        print("[DEBUG]", value)
+        let type = str.first
+        let readingType: ReadingType = (type == "T") ? .Temperature : .Humidity
+        let reading = Reading(type: readingType, value: value, sensorId: peripheral.name)
+        
+        activeHill?.readings.append(reading)
+        delegate?.sensorModel(self, didReceiveReadings: activeHill!.readings, forHill: activeHill)
+
+        
         
     }
     
